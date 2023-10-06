@@ -1,4 +1,4 @@
-r# How to launch application
+# How to launch application
 ## 1.Start Postgres container for DB
 docker-compose up
 ## 2. Start application spring boot with InvoiceApplication
