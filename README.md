@@ -4,9 +4,15 @@ docker-compose up
 ## 2. Start application spring boot with InvoiceApplication
 ## 3. Send request to 
 ### 3.1 http://localhost:8080/api/invoices/client/{reference} to get all Invoices of client with Ref
-### 3.2 http://localhost:8080/api/invoices/client/{reference}/calculate to calculate invoice for current day
-
-
+### 3.2 http://localhost:8080/api/invoices/client/{reference}/calculate to calculate invoice for current day with request body :
+```json
+{
+  "gas_begin_index" : 2005,
+  "gas_end_index" : 3005,
+  "electricity_begin_index" : 2008,
+  "electricity_end_index" : 3008
+}
+```
 
 
 # Test Technique Java Backend - Ekwateur
