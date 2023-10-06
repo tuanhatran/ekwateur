@@ -1,0 +1,35 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/ekwateur
+    username: ekwateur_admin
+    password: ekwateur_password
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+  flyway:
+    locations: /db/postgres/migration/test
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+
+price:
+  individual:
+    gas: 0.115
+    electricity: 0.121
+  professional:
+    big-revenue:
+      gas: 0.111
+      electricity: 0.114
+    small-revenue:
+      gas: 0.113
+      electricity: 0.118
