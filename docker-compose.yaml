@@ -1,0 +1,105 @@
+version: '3.9'
+x-kong-config: &kong-env
+  KONG_DATABASE: postgres
+  KONG_PG_DATABASE: ${KONG_PG_DATABASE:-kong}
+  KONG_PG_HOST: kong-database
+  KONG_PG_USER: ${POSTGRES_USER:-kong}
+  KONG_PG_PASSWORD: ${KONG_PG_PASSWORD:-kong}
+
+services:
+  kong-migrations:
+    image: kong/kong-gateway:3.3.1.0
+    command: kong migrations bootstrap
+    depends_on:
+      - kong-database
+    environment:
+      <<: *kong-env
+    networks:
+      - kong-net
+    restart: on-failure
+    links:
+      - kong-database:kong-database
+
+  kong-migrations-up:
+    image: kong/kong-gateway:3.3.1.0
+    command: kong migrations up && kong migrations finish
+    depends_on:
+      - kong-database
+    environment:
+      <<: *kong-env
+    networks:
+      - kong-net
+    restart: on-failure
+    links:
+      - kong-database:kong-database
+
+  kong-gateway:
+    image: kong/kong-gateway:3.3.1.0
+    user: "${KONG_USER:-kong}"
+    networks:
+      - kong-net
+    environment:
+      <<: *kong-env
+      KONG_PROXY_ACCESS_LOG: /dev/stdout
+      KONG_ADMIN_ACCESS_LOG: /dev/stdout
+      KONG_PROXY_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_LISTEN: 0.0.0.0:${KONG_ADMIN_PORT:-8001}
+      KONG_PROXY_LISTEN: 0.0.0.0:${KONG_PROXY_PORT:-8000}
+    ports:
+      - '${KONG_PROXY_PORT:-8000}:8000'
+      - '${KONG_ADMIN_PORT:-8001}:8001'
+    depends_on:
+      - kong-database
+    healthcheck:
+      test: [ "CMD", "kong", "health" ]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+    restart: on-failure
+    links:
+      - kong-database:kong-database
+
+  kong-database:
+    image: postgres:14.1-alpine
+    environment:
+      - POSTGRES_DB=${KONG_PG_DATABASE:-kong}
+      - POSTGRES_USER=${POSTGRES_USER:-kong}
+      - POSTGRES_PASSWORD=${KONG_PG_PASSWORD:-kong}
+    networks:
+      - kong-net
+
+  invoice-db:
+    image: postgres:14.1-alpine
+    restart: always
+    container_name: invoice-db
+    environment:
+      - POSTGRES_USER=ekwateur_admin
+      - POSTGRES_PASSWORD=ekwateur_password
+      - POSTGRES_DB=ekwateur
+    ports:
+      - '5432:5432'
+    volumes:
+      - db:/var/lib/postgresql/data
+
+  invoice-app:
+    image: 'docker-spring-boot-postgres:latest'
+    build: .
+    container_name: invoice-app
+    ports:
+      - '8080:8080'
+    depends_on:
+      - invoice-db
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://invoice-db:5432/ekwateur
+      - SPRING_DATASOURCE_USERNAME=ekwateur_admin
+      - SPRING_DATASOURCE_PASSWORD=ekwateur_password
+    restart: on-failure
+
+volumes:
+  db:
+    driver: local
+
+networks:
+  kong-net:
+    external: true
