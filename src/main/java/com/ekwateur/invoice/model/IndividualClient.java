@@ -13,6 +13,7 @@ import lombok.*;
 @Builder
 @Data
 @DiscriminatorValue("individual")
+@EqualsAndHashCode(callSuper = true)
 public class IndividualClient extends Client{
     @Column
     String civility;
@@ -24,10 +25,10 @@ public class IndividualClient extends Client{
     String lastName;
 
     @Override
-    public Invoice calculateInvoiceFrom(Client client, ConsumptionDetailInvoiceCalculationRequest request, PriceProperties price) {
+    public Invoice calculateInvoiceFrom(ConsumptionDetailInvoiceCalculationRequest request, PriceProperties price) {
         Float gasTotalAmount = (request.getGasEndIndex() - request.getGasBeginIndex()) *  price.getIndividual().getGas();
         Float electricityTotalAmount = (request.getElectricityEndIndex() - request.getElectricityBeginIndex()) *  price.getIndividual().getElectricity();
-        return Invoice.builder().client(client)
+        return Invoice.builder().client(this)
                 .gasBeginIndex(request.getGasBeginIndex())
                 .gasEndIndex(request.getGasEndIndex())
                 .electricityBeginIndex(request.getElectricityBeginIndex())

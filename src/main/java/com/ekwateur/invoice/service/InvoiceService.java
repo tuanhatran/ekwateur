@@ -3,6 +3,7 @@ package com.ekwateur.invoice.service;
 import com.ekwateur.invoice.configuration.PriceProperties;
 import com.ekwateur.invoice.exception.ClientNotFoundException;
 import com.ekwateur.invoice.exception.ConsumptionDetailInvalidException;
+import com.ekwateur.invoice.exception.InvoiceNotFoundException;
 import com.ekwateur.invoice.model.Client;
 import com.ekwateur.invoice.model.Invoice;
 import com.ekwateur.invoice.repository.ClientRepository;
@@ -12,7 +13,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
@@ -28,22 +28,34 @@ public class InvoiceService {
     private final PriceProperties priceProperties;
 
     public List<Invoice> getAllInvoicesForClient(String reference) {
-        return invoiceRepository.findByClientReference(reference);
+        findClientWith(reference);
+        List<Invoice> invoices = invoiceRepository.findByClientReference(reference);
+        if (invoices.isEmpty()){
+            String message = "No invoices for client with reference: " + reference;
+            log.info(message);
+            throw new InvoiceNotFoundException(message);
+        }
+        return invoices;
     }
 
-    public Invoice calculateInvoiceFor(String reference, ConsumptionDetailInvoiceCalculationRequest request) {
+    private Client findClientWith(String reference) {
         Optional<Client> clientOpt = clientRepository.findByReference(reference);
         if (clientOpt.isEmpty()) {
             String message = "Client with reference: " + reference + " NOT FOUND";
             log.error(message);
             throw new ClientNotFoundException(message);
         }
+        return clientOpt.get();
+    }
+
+    public Invoice calculateInvoiceFor(String reference, ConsumptionDetailInvoiceCalculationRequest request) {
+        Client client = findClientWith(reference);
 
         Optional<Invoice> lastInvoice = invoiceRepository.findFirstByClientReferenceOrderByInvoiceDateDesc(reference);
 
         if (lastInvoice.isPresent()){
             if (lastInvoice.get().isConsumptionDetailValid(lastInvoice.get(), request)) {
-                Invoice invoice = clientOpt.get().calculateInvoiceFrom(clientOpt.get(), request, priceProperties);
+                Invoice invoice = client.calculateInvoiceFrom(request, priceProperties);
                 invoiceRepository.save(invoice);
                 return invoice;
             } else {
@@ -52,7 +64,7 @@ public class InvoiceService {
                 throw new ConsumptionDetailInvalidException(message);
             }
         } else {
-            Invoice invoice = clientOpt.get().calculateInvoiceFrom(clientOpt.get(), request, priceProperties);
+            Invoice invoice = client.calculateInvoiceFrom(request, priceProperties);
             log.info("Invoice calculate successfully for client {} with request {}", reference, request);
             invoiceRepository.save(invoice);
             return invoice;

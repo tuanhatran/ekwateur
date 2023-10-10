@@ -19,5 +19,5 @@ public abstract class Client {
     @Column(name = "electricity_delivery_point", nullable = false, unique = true)
     String electricityDeliveryPoint;
 
-    public abstract Invoice calculateInvoiceFrom(Client client, ConsumptionDetailInvoiceCalculationRequest request, PriceProperties price);
+    public abstract Invoice calculateInvoiceFrom(ConsumptionDetailInvoiceCalculationRequest request, PriceProperties price);
 }

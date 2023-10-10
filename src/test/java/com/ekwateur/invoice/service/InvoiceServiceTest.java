@@ -4,6 +4,7 @@ import com.ekwateur.invoice.configuration.PriceProperties;
 import com.ekwateur.invoice.configuration.UnityPrice;
 import com.ekwateur.invoice.exception.ClientNotFoundException;
 import com.ekwateur.invoice.exception.ConsumptionDetailInvalidException;
+import com.ekwateur.invoice.exception.InvoiceNotFoundException;
 import com.ekwateur.invoice.model.Client;
 import com.ekwateur.invoice.model.IndividualClient;
 import com.ekwateur.invoice.model.Invoice;
@@ -21,6 +22,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -64,10 +67,49 @@ class InvoiceServiceTest {
     }
 
     @Test
-    void getAllInvoicesForClient() {
-        service.getAllInvoicesForClient("Reference");
+    void getAllInvoicesForClient_ClientWithRefNotFound() {
+        Mockito.when(clientRepository.findByReference("Reference")).thenReturn(Optional.empty());
 
+        Exception exception = assertThrows(ClientNotFoundException.class, () -> service.getAllInvoicesForClient("Reference"));
+
+        Assertions.assertEquals(exception.getMessage(), "Client with reference: Reference NOT FOUND");
+
+        Mockito.verify(invoiceRepository, Mockito.times(0)).findByClientReference(anyString());
+    }
+
+    @Test
+    void getAllInvoicesForClient_NoInvoiceForClient() {
+        IndividualClient client = IndividualClient.builder()
+                .build();
+        Mockito.when(clientRepository.findByReference("EKW00000001")).thenReturn(Optional.of(client));
+        List<Invoice> emptyInvoice = new ArrayList<>();
+        Mockito.when(invoiceRepository.findByClientReference("EKW00000001")).thenReturn(emptyInvoice);
+
+        Exception exception = assertThrows(InvoiceNotFoundException.class, () -> service.getAllInvoicesForClient("EKW00000001"));
+
+        Assertions.assertEquals(exception.getMessage(), "No invoices for client with reference: EKW00000001");
         Mockito.verify(invoiceRepository, Mockito.times(1)).findByClientReference(anyString());
+    }
+
+    @Test
+    void getAllInvoicesForClient_ClientHasInvoice() {
+        IndividualClient client = IndividualClient.builder()
+                .build();
+        Mockito.when(clientRepository.findByReference("EKW00000001")).thenReturn(Optional.of(client));
+        Invoice anInvoice = Invoice.builder()
+                .client(client)
+                .gasTotalAmount(10f)
+                .electricityTotalAmount(15f)
+                .build();
+        List<Invoice> expectedInvoices = List.of(anInvoice);
+        Mockito.when(invoiceRepository.findByClientReference("EKW00000001")).thenReturn(expectedInvoices);
+
+        List<Invoice> result = service.getAllInvoicesForClient("EKW00000001");
+
+        Assertions.assertEquals(expectedInvoices.size(), result.size());
+        Assertions.assertEquals(anInvoice, result.get(0));
+        Assertions.assertEquals(anInvoice.getGasTotalAmount(), result.get(0).getGasTotalAmount());
+        Assertions.assertEquals(anInvoice.getElectricityTotalAmount(), result.get(0).getElectricityTotalAmount());
     }
 
     @Test

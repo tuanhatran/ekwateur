@@ -3,7 +3,7 @@ server:
 
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5433/ekwateur
+    url: jdbc:postgresql://localhost:5432/ekwateur
     username: ekwateur_admin
     password: ekwateur_password
     driver-class-name: org.postgresql.Driver

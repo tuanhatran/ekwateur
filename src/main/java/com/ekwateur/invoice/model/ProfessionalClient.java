@@ -6,10 +6,7 @@ import com.ekwateur.invoice.request.ConsumptionDetailInvoiceCalculationRequest;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @AllArgsConstructor
@@ -17,6 +14,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @Data
 @DiscriminatorValue("professional")
+@EqualsAndHashCode(callSuper = true)
 public class ProfessionalClient extends Client{
     public static final Float REVENUE_THRESHOLD = 1000000F;
     @Column(name = "siret_number", nullable = false)
@@ -29,11 +27,11 @@ public class ProfessionalClient extends Client{
     Float revenue;
 
     @Override
-    public Invoice calculateInvoiceFrom(Client client, ConsumptionDetailInvoiceCalculationRequest request, PriceProperties price) {
+    public Invoice calculateInvoiceFrom(ConsumptionDetailInvoiceCalculationRequest request, PriceProperties price) {
         UnityPrice unityPrice = getUnityPriceFrom(price, revenue);
         Float gasTotalAmount = (request.getGasEndIndex() - request.getGasBeginIndex()) *  unityPrice.getGas();
         Float electricityTotalAmount = (request.getElectricityEndIndex() - request.getElectricityBeginIndex()) *  unityPrice.getElectricity();
-        return Invoice.builder().client(client)
+        return Invoice.builder().client(this)
                 .gasBeginIndex(request.getGasBeginIndex())
                 .gasEndIndex(request.getGasEndIndex())
                 .electricityBeginIndex(request.getElectricityBeginIndex())
