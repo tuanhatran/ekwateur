@@ -1,0 +1,559 @@
+{
+	"info": {
+		"_postman_id": "76735ece-b7cd-43c5-9c74-b0500328fc30",
+		"name": "TechnicalTest",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "3950003"
+	},
+	"item": [
+		{
+			"name": "Kong",
+			"item": [
+				{
+					"name": "1. Kong admin create Service",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"host\":\"192.168.0.4\",\r\n    \"port\": 8080,\r\n    \"protocol\": \"http\",\r\n    \"name\":\"ekwateur-invoice\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8001/services",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8001",
+							"path": [
+								"services"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "1.1. Kong admin add key-auth to service",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "name",
+									"value": "key-auth",
+									"type": "text"
+								},
+								{
+									"key": "config.hide_credentials",
+									"value": "true",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:8001/services/:serviceName/plugins",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8001",
+							"path": [
+								"services",
+								":serviceName",
+								"plugins"
+							],
+							"variable": [
+								{
+									"key": "serviceName",
+									"value": "ekwateur-invoice"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "1.2. Kong admin add ACL to service",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "name",
+									"value": "acl",
+									"type": "text"
+								},
+								{
+									"key": "config.hide_groups_header",
+									"value": "true",
+									"type": "text"
+								},
+								{
+									"key": "config.allow",
+									"value": "ekwateur-group",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:8001/services/:serviceName/plugins",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8001",
+							"path": [
+								"services",
+								":serviceName",
+								"plugins"
+							],
+							"variable": [
+								{
+									"key": "serviceName",
+									"value": "ekwateur-invoice"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "2. Kong admin create route",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\t\"name\": \"ekwateur-route\",\r\n\t\"protocols\": [\r\n\t\t\"http\",\r\n        \"https\"\r\n\t],\r\n\t\"paths\": [\r\n\t\t\"/ekwateur/v1/\"\r\n\t]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8001/services/:serviceName/routes",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8001",
+							"path": [
+								"services",
+								":serviceName",
+								"routes"
+							],
+							"variable": [
+								{
+									"key": "serviceName",
+									"value": "ekwateur-invoice"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "3. Kong admin create consumer",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n     \"username\": \"ekwateur-consumer\",\r\n    \"custom_id\": \"ekwateur-custom-id\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8001/consumers",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8001",
+							"path": [
+								"consumers"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "3.1. Kong admin create apikey consumer",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8001/consumers/:consumerName/key-auth/",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8001",
+							"path": [
+								"consumers",
+								":consumerName",
+								"key-auth",
+								""
+							],
+							"variable": [
+								{
+									"key": "consumerName",
+									"value": "ekwateur-consumer"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "3.2. Kong admin add ACL to consumer",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "group",
+									"value": "ekwateur-group",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "http://localhost:8001/consumers/:consumerName/acls",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8001",
+							"path": [
+								"consumers",
+								":consumerName",
+								"acls"
+							],
+							"variable": [
+								{
+									"key": "consumerName",
+									"value": "ekwateur-consumer"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Kong admin retrieve service",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"host\":\"192.168.0.4\",\r\n    \"port\": 8080,\r\n    \"protocol\": \"http\",\r\n    \"name\":\"ekwateur-invoice\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8001/services/ekwateur-invoice",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8001",
+							"path": [
+								"services",
+								"ekwateur-invoice"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Kong admin modify Service",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"url\":\"http://127.0.0.1:8080\",\r\n    \"name\":\"ekwateur-invoice\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8001/services/:serviceName",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8001",
+							"path": [
+								"services",
+								":serviceName"
+							],
+							"variable": [
+								{
+									"key": "serviceName",
+									"value": "ekwateur-invoice"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Kong admin modify route",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\t\"name\": \"ekwateur-route\",\r\n\t\"protocols\": [\r\n\t\t\"http\",\r\n        \"https\"\r\n\t],\r\n\t\"paths\": [\r\n\t\t\"/ekwateur/v1/\"\r\n\t]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8001/routes/:routeName",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8001",
+							"path": [
+								"routes",
+								":routeName"
+							],
+							"variable": [
+								{
+									"key": "routeName",
+									"value": "ekwateur-route"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Kong admin delete Service",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"url\":\"http://localhost:8080\",\r\n    \"name\":\"ekwateur-invoice\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8001/services/:serviceName",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8001",
+							"path": [
+								"services",
+								":serviceName"
+							],
+							"variable": [
+								{
+									"key": "serviceName",
+									"value": "ekwateur-invoice"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Kong admin delete route",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n\t\"name\": \"ekwateur-route\",\r\n\t\"protocols\": [\r\n\t\t\"http\",\r\n        \"https\"\r\n\t],\r\n\t\"paths\": [\r\n\t\t\"/invoice/v1/\"\r\n\t]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8001/services/:serviceName/routes",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8001",
+							"path": [
+								"services",
+								":serviceName",
+								"routes"
+							],
+							"variable": [
+								{
+									"key": "serviceName",
+									"value": "ekwateur-invoice"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Invoice-app",
+			"item": [
+				{
+					"name": "Invoices",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8080/api/invoices/client/EKW00000001",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"invoices",
+								"client",
+								"EKW00000001"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Calculate Invoice",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"gas_begin_index\" : 2005,\r\n    \"gas_end_index\" : 3005,\r\n    \"electricity_begin_index\" : 2008,\r\n    \"electricity_end_index\" : 3008\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:8080/api/invoices/client/EKW0000000k/calculate",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "8080",
+							"path": [
+								"api",
+								"invoices",
+								"client",
+								"EKW0000000k",
+								"calculate"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Kong proxy - Ekwateur invoices",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"auth": {
+					"type": "apikey",
+					"apikey": [
+						{
+							"key": "value",
+							"value": "wuAvwO9JsCPHUwjzswfRoaYg1bvApCiD",
+							"type": "string"
+						},
+						{
+							"key": "key",
+							"value": "apikey",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "text"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://127.0.0.1:8000/ekwateur/v1/api/invoices/client/EKW00000001",
+					"protocol": "http",
+					"host": [
+						"127",
+						"0",
+						"0",
+						"1"
+					],
+					"port": "8000",
+					"path": [
+						"ekwateur",
+						"v1",
+						"api",
+						"invoices",
+						"client",
+						"EKW00000001"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
