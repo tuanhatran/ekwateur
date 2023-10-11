@@ -1,8 +1,8 @@
 # How to launch application
-## 1.Start Postgres container for DB
+## 1.Start Kong gateway, Kong Database, Kong migrations jobs, invoice-app, invoice-db
 docker-compose up
-## 2. Start application spring boot with InvoiceApplication
-## 3. Send request to 
+## 2. Run request in TechnicalTest.postman_collection.json to add entries in Kong database
+## 3. Send request (with Auth Type Apikey, add to header : key = apikey, value = apikey create with postman request 3.1. Kong admin create apikey consumer)
 ### 3.1 http://localhost:8080/api/invoices/client/{reference} to get all Invoices of client with Ref
 ### 3.2 http://localhost:8080/api/invoices/client/{reference}/calculate to calculate invoice for current day with request body :
 ```json
